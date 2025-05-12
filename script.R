@@ -15,6 +15,21 @@ setwd("C:/Users/Lana Milicevic/Projects/gnss-spoofing-detection")
 file1 <- file.path("messages", "nav_file1.rnx")
 file2 <- file.path("messages", "nav_file2.rnx")
 
+# Funkcija za vraćanje naziva GNSS parametra na temelju rednog broja linije u bloku
+get_param_name <- function(line_index) {
+  param_map <- c(
+    "Satelitski sat: pomak, drift, ubrzanje drifta",
+    "Orbitalni parametri: kvadratni korijen poluvelike osi (sqrt(A)), ekscentricitet",
+    "Orbitalni parametri: ephemeris vrijeme, srednja anomalija",
+    "Orbitalni parametri: argument perigeja, brzina uzlaznog čvora",
+    "Orbitalni parametri: inklinacija, promjene inklinacije",
+    "Korekcijski parametri: Cuc, Cus, itd.",
+    "Korekcijski parametri: Crc, Crs, itd.",
+    "Status satelita: zdravlje, točnost, ostalo"
+  )
+  return(param_map[line_index])
+}
+
 # Funkcija za parsiranje RINEX navigacijske datoteke
 parse_nav_file <- function(file_path) {
   lines <- readLines(file_path)  # Učitavanje svih linija iz datoteke
@@ -74,7 +89,7 @@ compare_nav_data <- function(file1, file2, output_file = "structured_diff_output
       for (i in seq_along(block1)) {
         if (block1[i] != block2[i]) {
           cat("=== Razlika za", key, "===\n", file = con)
-          cat("Linija", i, "\n", file = con)
+          cat(sprintf("Linija %d - %s\n", i, get_param_name(i)), file = con)
           cat("Datoteka 1:", block1[i], "\n", file = con)
           cat("Datoteka 2:", block2[i], "\n\n", file = con)
           diffs_found <- TRUE
